@@ -27,15 +27,22 @@
 |---|---|---|
 | 0 | 环境与项目初始化 | ✅ 完成（自检 27 PASS / 0 WARN / 0 FAIL） |
 | 1 | 数据获取与质量审查 | ✅ 完成（24 项检查，5 个实质问题已定处置） |
-| 2 | 指标分析与用户运营 | 未开始 |
+| 2 | 指标分析与用户运营 | ✅ 完成（17 项 SQL/Pandas 对账全一致，16 个单测通过） |
 | 3 | A/B Test 与 AI 使用分析 | 未开始 |
 | 4 | RAG 知识库与检索 | 未开始 |
 | 5 | RAG + 业务数据 + LLM 集成 | 未开始 |
 | 6 | 最终报告与复现验收 | 未开始 |
 
-设计基线见 [`docs/00_requirements_and_design.md`](docs/00_requirements_and_design.md)（含 12 条勘误），
-数据侧看 [`data_dictionary.md`](docs/data_dictionary.md)、[`data_quality_report.md`](docs/data_quality_report.md)、
-[`data_manifest.md`](docs/data_manifest.md)。
+### 文档导航
+
+| 文档 | 回答什么问题 |
+|---|---|
+| [`00_requirements_and_design.md`](docs/00_requirements_and_design.md) | 设计基线与 12 条勘误 |
+| [`data_dictionary.md`](docs/data_dictionary.md) | 五个表每个字段是什么 |
+| [`data_quality_report.md`](docs/data_quality_report.md) | 24 项质量检查与 7 条处置决策 |
+| [`data_capability_assessment.md`](docs/data_capability_assessment.md) | **这套数据能做什么、不能做什么** |
+| [`metric_dictionary.md`](docs/metric_dictionary.md) | 每个指标的口径、分母、限制 |
+| [`segmentation_findings.md`](docs/segmentation_findings.md) | 六层分层结果与阈值敏感性 |
 
 > **阶段 1 的关键结论：** 该数据集的 `signup_date` 与使用时间不连贯——490/500 个账户的首次使用
 > 早于注册日。因此「注册→首次使用」的激活漏斗**不能**用真实数据构造，已改为「以首次使用日为锚」
@@ -120,6 +127,12 @@ python scripts/check_environment.py   # 环境自检，退出码 0 表示无阻�
 bash scripts/init_database.sh         # 初始化库与用户（幂等）
 python scripts/download_data.py       # 下载五张原始 CSV（已存在则跳过）
 python scripts/profile_data.py        # 数据画像与质量检查
+python scripts/load_to_mysql.py       # 建表 + 装载（行数校验）
+python scripts/run_sql.py sql/02_kpi_analysis.sql   # 建指标视图
+python scripts/run_analysis.py        # 指标计算 + SQL/Pandas 全量对账
+python scripts/run_sql.py sql/03_customer_segments.sql
+python scripts/segment_accounts.py    # 客户分层 + 对账
+pytest -q                             # 单元测试
 python scripts/run_analysis.py        # 指标分析（阶段 2 后可用）
 python scripts/build_knowledge_base.py # 构建向量库（阶段 4 后可用）
 python scripts/ask_ops_assistant.py   # 运营助手（阶段 5 后可用）
