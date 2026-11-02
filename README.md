@@ -30,14 +30,16 @@
 | 2 | 指标分析与用户运营 | ✅ 完成（17 项 SQL/Pandas 对账全一致，16 个单测通过） |
 | 3 | A/B Test 与 AI 使用分析 | ✅ 完成（23 列对账全一致，框架自校验 6 项通过，83 个单测） |
 | 4 | RAG 知识库与检索 | ✅ 完成（12 份文档 / 67 块 / Hit@3 1.0，幂等验收通过） |
-| 5 | RAG + 业务数据 + LLM 集成 | ✅ 完成（3 个白名单函数 / 8 段报告 / 数字审计 / 3 份实测报告，188 个单测） |
-| 6 | 最终报告与复现验收 | 未开始 |
+| 5 | RAG + 业务数据 + LLM 集成 | ✅ 完成（3 个白名单函数 / 8 段报告 / 数字审计 / 3 份实测报告） |
+| 6 | 最终报告与复现验收 | ✅ 完成（全链路 18 步复跑通过，200 个单测） |
 
 ### 文档导航
 
 | 文档 | 回答什么问题 |
 |---|---|
-| [`00_requirements_and_design.md`](docs/00_requirements_and_design.md) | 设计基线与 13 条勘误 |
+| [`final_report.md`](docs/final_report.md) | **项目总报告：做了什么、得出什么、改写了什么** |
+| [`acceptance_checklist.md`](docs/acceptance_checklist.md) | 验收清单与实跑证据（含复现一致性比对） |
+| [`00_requirements_and_design.md`](docs/00_requirements_and_design.md) | 设计基线与 14 条勘误 |
 | [`data_dictionary.md`](docs/data_dictionary.md) | 五个表每个字段是什么 |
 | [`data_quality_report.md`](docs/data_quality_report.md) | 24 项质量检查与 7 条处置决策 |
 | [`data_capability_assessment.md`](docs/data_capability_assessment.md) | **这套数据能做什么、不能做什么** |
@@ -50,6 +52,7 @@
 | [`rag_design.md`](docs/rag_design.md) | 知识库构成、切块策略、索引幂等、检索配置 |
 | [`rag_evaluation_report.md`](docs/rag_evaluation_report.md) | **检索指标与它的局限**（含失败案例） |
 | [`llm_integration.md`](docs/llm_integration.md) | **LLM 选型、8 段报告、数字审计能查什么/查不了什么** |
+| [`dashboard.html`](outputs/dashboard.html) | 6 图看板（图片内嵌，双击即可看） |
 
 > **阶段 1 的关键结论：** 该数据集的 `signup_date` 与使用时间不连贯——490/500 个账户的首次使用
 > 早于注册日。因此「注册→首次使用」的激活漏斗**不能**用真实数据构造，已改为「以首次使用日为锚」
@@ -197,6 +200,26 @@ python scripts/check_rag_env.py             # 之后：全离线检查，不触�
 
 ## 常用命令
 
+### 一键复现（推荐）
+
+```bash
+source .venv/bin/activate
+bash scripts/reproduce.sh              # 18 步全链路，约 5 分半，幂等
+```
+
+脚本会依次完成环境自检 → 数据准备 → 入仓 → 指标对账 → 模拟数据 → A/B → 分层 →
+建索引 → 检索评估 → 诊断报告 → 看板 → 测试 → 密钥扫描，任一步失败立即停止并报出步骤号。
+
+```bash
+bash scripts/reproduce.sh 3 6 12                    # 只跑指定步骤
+SKIP_HARNESS=0 HARNESS_REPS=2000 bash scripts/reproduce.sh   # 额外跑 A/B 框架自校验
+```
+
+> 没有 `GLM_API_KEY` 时，诊断报告会自动切到 `--mock` 离线模式，全链路仍可跑通。
+> 实测结果见 [`docs/acceptance_checklist.md`](docs/acceptance_checklist.md)。
+
+### 分步执行
+
 ```bash
 source .venv/bin/activate
 
@@ -241,8 +264,12 @@ python scripts/ask_ops_assistant.py --scenario low_activity_customer --as-of 202
 #   追加 --mock
 # 退出码：0 正常 / 1 降级（模型未过审计）/ 2 参数错误
 
+# ---- 阶段 6：看板与验收 ----
+python scripts/build_dashboard.py     # 6 张图 + outputs/dashboard.html（图片内嵌，离线可看）
+
 # ---- 测试 ----
-pytest -q                             # 188 个单元测试
+pytest -q                             # 200 个单元测试
+python scripts/check_no_secrets.py --all   # 全仓密钥扫描
 ```
 
 ---
@@ -258,12 +285,11 @@ ai-growth-data-ops-rag/
 │   └── chroma/         # 本地向量库（不入库，可重建）
 ├── knowledge_base/     # 12 份模拟运营知识 Markdown
 ├── docs/               # 设计、字典、质量报告、各模块分析报告
-├── notebooks/          # 4 个分析 Notebook
 ├── sql/                # 建表与 KPI SQL（MySQL 8.4 语法）
 ├── src/                # 业务代码（config / 分析 / rag）
-├── scripts/            # 命令行入口
+├── scripts/            # 命令行入口（分析全部以可执行脚本形式提供，见下）
 ├── tests/              # pytest
-└── outputs/            # 聚合结果（仅小体积 CSV/MD 入库）
+└── outputs/            # 聚合结果（CSV/MD/图表/看板入库，原始与中间产物不入库）
 ```
 
 ---
@@ -286,3 +312,10 @@ ai-growth-data-ops-rag/
 2. `feature_usage` 存在重复 `usage_id`，去重规则与影响行数记录在数据质量报告。
 3. 模拟日志不包含人工质量评价，因此**不推断模型回答质量**。
 4. 成本为「按假设单价估算」，单价快照 2026-09-18，非真实账单。
+5. 「零 MRR」层（69 户）**不是流失**：它们持有有效订阅但金额为 0（全表 778/5000 条订阅
+   金额 ≤ 0）。这一层反映计费数据异常，运营动作应是先核实计费，而非发起流失唤回。
+   该层原名为「已停付」，阶段 6 复核时因与事实冲突而改名。
+6. **数字审计只查"数字是否来自数据"，查不了"数字用没用在正确的地方"**。真实反例：
+   某账户的 `inactive_days: 53` 被模型写成"前 10% 账户贡献 53% 的请求"，审计放行。
+   因此这套护栏的定位是让复核有的放矢，不替代人工复核。
+7. RAG 的 18 题评估集由项目自建且参与过调优，属于**形成性评估**，Hit@3 1.0 偏乐观。

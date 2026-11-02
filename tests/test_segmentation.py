@@ -49,11 +49,11 @@ def test_default_is_stable_base() -> None:
 
 
 def test_stopped_paying_overrides_high_value() -> None:
-    """MRR=0 优先于一切——已停付的账户即使功能用得多，也不能算高价值。"""
+    """MRR=0 优先于一切——零 MRR 的账户即使功能用得多，也不能算高价值。"""
     df = segmentation.assign_segments(
         make_profile(mrr_latest=0, features_used=40), thresholds()
     )
-    assert df.iloc[0]["segment"] == "已停付"
+    assert df.iloc[0]["segment"] == "零 MRR"
 
 
 def test_risk_overrides_high_value() -> None:

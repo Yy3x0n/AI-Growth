@@ -407,7 +407,7 @@ def main() -> int:
     if has_blocker:
         print("结论：存在阻塞项，请按上述 → 提示处理后再进入下一阶段。")
         return 1
-    print("结论：无阻塞项。可进入阶段 1（数据获取与质量审查）。")
+    print("结论：无阻塞项，可直接运行 bash scripts/reproduce.sh 复现全链路。")
     return 0
 
 

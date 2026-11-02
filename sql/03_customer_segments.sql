@@ -58,7 +58,7 @@ SELECT
   p.churn_flag,
   CASE
     -- ① 末月无有效订阅：比 churn_flag 更接近"实际停付"，优先归类
-    WHEN p.mrr_latest = 0 THEN '已停付'
+    WHEN p.mrr_latest = 0 THEN '零 MRR'
     -- ② 服务或质量亮红灯：升级工单、低满意度、高错误率任一命中
     WHEN p.escalation_cnt >= (SELECT value FROM segment_threshold WHERE name = 'escalation_high')
       OR (p.avg_csat IS NOT NULL

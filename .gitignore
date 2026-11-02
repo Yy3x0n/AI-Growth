@@ -44,6 +44,13 @@ outputs/reports/*
 outputs/simulated/*
 !outputs/simulated/*.csv
 
+# 看板与图表属于「给人看」的交付物，放行：
+# 审查者不必先跑一遍代码就能看到结果，这对公开仓库的可用性影响很大。
+# 体积约 0.9 MB（6 张 PNG + 1 个内嵌图片的 HTML），可接受。
+!outputs/dashboard.html
+!outputs/figures/
+!outputs/figures/*.png
+
 # ---------------- 其他 ----------------
 *.log
 .cache/

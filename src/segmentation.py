@@ -18,7 +18,12 @@ from __future__ import annotations
 import pandas as pd
 
 # 分层优先级：顺序即优先级，命中即停
-SEGMENT_ORDER = ["已停付", "风险关注", "高价值", "深度采用", "浅层采用", "稳健基础"]
+#
+# 第一层原名「已停付」，阶段 6 复核时发现**命名与事实不符**：
+# 那 69 个账户全部持有有效订阅，只是 mrr_amount = 0（全表 778/5000 条订阅金额 <= 0，
+# 其中甚至包含 Enterprise 套餐）。所以它们不是"停止付费"，而是"订阅金额为零"。
+# 若沿用旧名，任何人核对数据都会发现"已停付却有有效订阅"的矛盾。
+SEGMENT_ORDER = ["零 MRR", "风险关注", "高价值", "深度采用", "浅层采用", "稳健基础"]
 
 
 def compute_thresholds(profile: pd.DataFrame) -> dict:
@@ -64,7 +69,7 @@ def assign_segments(profile: pd.DataFrame, thresholds: dict) -> pd.DataFrame:
          | (df["error_rate"] >= thresholds["error_rate_p90"]),
          f"升级工单≥{thresholds['escalation_high']} 或 满意度≤{thresholds['csat_low']} "
          f"或 错误率≥P90({thresholds['error_rate_p90']})"),
-        ("已停付", df["mrr_latest"] == 0, "末月无有效订阅（MRR=0）"),
+        ("零 MRR", df["mrr_latest"] == 0, "末月 MRR=0（仍持有效订阅，金额为 0）"),
     ]
     for name, mask, reason in conditions:
         df.loc[mask, "segment"] = name
