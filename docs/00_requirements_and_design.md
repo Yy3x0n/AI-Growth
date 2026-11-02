@@ -519,9 +519,12 @@ src/database / config             ← 基础设施层
 
 环境项实测值 → 缺口清单 → 已创建文件清单 → 检查脚本实际输出 → `git status` → 待办事项 → 下一阶段输入。
 
-### 9.5 Homebrew + MySQL 执行方案（待放行，含两个坑）
+### 9.5 Homebrew 安装 MySQL 的方案（**未采用**，保留为备选知识）
 
-**坑 1：`brew install mysql` 装不到 8.4。** Homebrew 的 `mysql` 公式指向最新大版本（当前为 9.x 系列），任务书 §3.6 明确要求"优先 8.4 LTS"。必须用版本化公式：
+> 本节方案因环境限制未能执行，最终采用 §9.7 的既有实例复用方案。保留此节是因为
+> 其中两个 `brew` 的坑具有通用价值，换机重装时会再次遇到。
+
+**坑 1：`brew install mysql` 装不到 8.4。** Homebrew 的 `mysql` 公式指向最新大版本（当前 `26.10.0`），任务书 §3.6 希望的是 8.4 LTS。要用 8.4 需版本化公式：
 
 ```bash
 brew install mysql@8.4
@@ -597,3 +600,38 @@ echo 'export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"' >> ~/.zshrc
 | 数据真实性标注 | 遵守 | 1.4 三层分级 |
 
 **唯一偏离项：** chunk 长度由 500–800 下调至 320–420 汉字（C-01）；理由与验证方式已给出。若用户坚持原规格，需同步接受"检索评估结果可能受截断影响"这一限制，并在报告中声明。
+
+### 9.7 最终采用：复用本机既有 MySQL 8.4.7（已实施）
+
+**发现：** 机器上已存在一个运行中的 MySQL 8.4.7，非 Homebrew 安装，而是 **Oracle 官方 tarball**：
+
+| 项 | 值 |
+|---|---|
+| 安装路径 | `~/mysql/mysql-8.4.7-macos15-arm64` |
+| 配置 | `~/mysql/my.cnf`（`basedir`/`datadir`/`socket`/`port=3306`/`bind-address=127.0.0.1`） |
+| 数据目录 | `~/mysql/data` |
+| 自启动 | `~/Library/LaunchAgents/com.local.mysql.plist`，`RunAtLoad` + `KeepAlive` |
+| 既有业务库 | `ai_saas_analytics`（含 `raw_*` 五表 + 两张 `synthetic_*`），系上一次尝试的遗留 |
+| 既有账号 | `root@localhost`、`saas_analyst@127.0.0.1` |
+
+**决策依据：** 任务书 §3.6 明确「用户已有 MySQL 8.0 或 8.4 时优先复用，不要求升级；不要同时安装两个版本以免端口冲突」。既有实例为 8.4.7，正落在该范围内，且数据目录内含上一次的项目表，复用可避免端口冲突与重复安装。
+
+**root 密码重置（用户授权后执行）：**
+
+1. 校验监听进程的可执行路径确属 `~/mysql/...`，避免误停其他实例；
+2. `kill -TERM`（非 `-9`）平滑关闭，让 InnoDB 正常刷盘；
+3. 以 `--skip-grant-tables --skip-networking --daemonize` 重启，仅走 socket、不开 TCP；
+4. **同一会话内**执行 `FLUSH PRIVILEGES; ALTER USER 'root'@'localhost' IDENTIFIED BY ...;`
+5. 关闭临时实例，恢复正常启动；
+6. 新密码写入 `~/mysql/ROOT_PASSWORD.txt`（权限 600），不写入仓库、不打印到对话。
+
+**两个必须记录的坑：**
+
+- **`FLUSH PRIVILEGES` 会立即恢复鉴权。** 首次尝试把「刷新权限」与「改密」分成两次连接执行，第二次连接即被拒（`Access denied ... using password: NO`），因为刷新后 skip-grant 的免鉴权窗口即关闭。必须写进同一会话。
+- **`KeepAlive` 会导致进程被自动拉起。** 首次 `kill -TERM` 后 1 秒内 launchd 就重启了一个新实例，与随后的临时实例争抢 `ibdata1` 文件锁（`Unable to lock ./ibdata1 error: 35`）。正确顺序是先 `launchctl bootout` 卸载 job，再操作进程。
+
+**残留限制：** 本会话内 `launchctl bootstrap` / `load` 均返回 `Input/output error (5)`，属执行环境对 launchd 注册的限制。`com.local.mysql.plist` 文件本身完好，下次登录会自动加载；本会话内改用 `mysqld --daemonize` 启动。
+
+**项目库初始化：** 新建独立库 `ai_growth_ops` 与用户 `ai_ops_user@127.0.0.1`，**不改动、不删除** `ai_saas_analytics` 与既有账号。脚本为 `scripts/init_database.sh`（幂等）。
+
+**额外依赖：** 补装 `cryptography`。MySQL 8 的 `caching_sha2_password` 在非 TLS 连接下需要 RSA 交换密码，PyMySQL 依赖该包；缺失时首次（认证缓存为空）连接会失败。

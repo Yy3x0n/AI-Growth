@@ -42,7 +42,7 @@
 
 - Python 3.11（uv 管理，见下文）
 - pandas / numpy / scipy / statsmodels / scikit-learn
-- MySQL 8.4 LTS（Homebrew `mysql@8.4`，keg-only）
+- MySQL 8.4.7（本机已有 Oracle tarball 实例，端口 3306）
 - Embedding：`BAAI/bge-small-zh-v1.5`（本地推理，512 维）
 - 向量库：ChromaDB（本地持久化，`data/chroma/`，不入库）
 - LLM：DeepSeek `deepseek-flash`（仅生成文字，不计算指标）
@@ -70,27 +70,36 @@ VS Code 中：`Cmd + Shift + P` → `Python: Select Interpreter` → 选择
 
 Homebrew 已安装到标准前缀 `/opt/homebrew`（arm64 预编译包要求该路径）。
 
-MySQL 使用 8.4 LTS 版本化公式，安装与初始化已封装为脚本，**在 VS Code 终端执行一次**：
+**MySQL 复用本机已有实例**，不另外安装：
+
+| 项 | 值 |
+|---|---|
+| 版本 | 8.4.7（Oracle 官方 tarball，Community Server GPL） |
+| 安装位置 | `~/mysql/mysql-8.4.7-macos15-arm64` |
+| 数据目录 | `~/mysql/data` |
+| 监听 | `127.0.0.1:3306`，socket 见 `~/mysql/my.cnf` |
+| 开机自启 | `~/Library/LaunchAgents/com.local.mysql.plist`（KeepAlive） |
+| 客户端 | `~/mysql/mysql-8.4.7-macos15-arm64/bin`，已写入 `~/.zprofile` 的 PATH |
+| root 密码 | `~/mysql/ROOT_PASSWORD.txt`（权限 600，**不入库**） |
+
+数据库与专用用户初始化（幂等）：
 
 ```bash
-bash scripts/setup_mysql.sh
+bash scripts/init_database.sh
 ```
 
-脚本会依次完成：安装 `mysql@8.4` → 启动 `brew services` → 等待就绪 → 创建库 `ai_growth_ops`
-与专用用户 `ai_ops_user`（密码取自 `.env`）→ 用应用用户验证连接。脚本幂等，可重复执行。
+脚本会创建库 `ai_growth_ops` 与用户 `ai_ops_user`（密码取自 `.env`），并用应用用户回连验证。
 
-> 为什么需要手动跑一次：Homebrew 安装 bottle 时会用 `sandbox-exec` 二次封装，
-> 在已处于 macOS 沙箱内的 Agent 环境中会因嵌套沙箱被拒绝；且 Homebrew 明确拒在
-> 默认前缀下跳过沙箱。详见 `docs/00_requirements_and_design.md` 第 9.6 节。
-
-> `mysql@8.4` 是 **keg-only**，不会自动进 PATH。已写入 `~/.zprofile`：
-> `export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"`
+> 说明：Agent 环境无法执行 Homebrew 装包——Homebrew 安装 bottle 时会用 `sandbox-exec`
+> 二次封装，在已处于 macOS 沙箱内的进程中因嵌套沙箱被系统拒绝，且 Homebrew 明确拒在
+> 默认前缀下跳过沙箱。这也是本机改用既有 MySQL 实例的原因之一。
+> 详见 `docs/00_requirements_and_design.md` 第 9.6 节。
 
 ### 3. 密钥配置
 
 ```bash
 cp .env.example .env
-# 编辑 .env，填入 DEEPSEEK_API_KEY 与 MySQL 密码
+# 编辑 .env，填入 DEEPSEEK_API_KEY；MySQL 密码在初始化时已随机生成
 ```
 
 `.env` 已在 `.gitignore` 中，**永不入库**。没有 API Key 时可使用 Mock 模式验证流程。

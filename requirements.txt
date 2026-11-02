@@ -18,6 +18,9 @@ matplotlib
 # ---- 数据库 ----
 sqlalchemy
 pymysql
+# MySQL 8 默认认证插件 caching_sha2_password 在非 TLS 连接下需 RSA 交换密码，
+# PyMySQL 依赖 cryptography 完成；缺它会报 "cryptography package is required"。
+cryptography
 
 # ---- 配置与网络 ----
 python-dotenv

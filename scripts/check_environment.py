@@ -20,8 +20,10 @@
 from __future__ import annotations
 
 import json
+import os
 import platform
 import shutil
+import socket
 import subprocess
 import sys
 from pathlib import Path
@@ -186,28 +188,79 @@ def check_tools() -> None:
         )
 
     # ---- MySQL ----
-    mysql_path = shutil.which("mysql")
+    # 客户端可能来自三处：PATH、Homebrew 的 keg-only 目录、Oracle tarball 解压目录
+    mysql_path = shutil.which("mysql") or resolve_mysql_bin("mysql")
     if mysql_path:
         code, out = run([mysql_path, "--version"])
         record("MySQL 客户端", PASS if code == 0 else WARN, first_line(out) if code == 0 else out)
 
-        # 服务是否真的在跑，比"装了客户端"更重要
-        code, out = run(["mysqladmin", "ping"], timeout=8)
-        if code == 0 and "alive" in out.lower():
-            record("MySQL 服务", PASS, first_line(out))
-        else:
+        # 服务是否真的在跑。这里用 TCP 连通性判断，而不是 `mysqladmin ping`：
+        # mysqladmin 需要鉴权，未带凭据时会以 "connect to server failed" 回报，
+        # 与"服务没启动"无法区分，容易误报。鉴权是否正常由 check_database 负责验证。
+        try:
+            with socket.create_connection(("127.0.0.1", 3306), timeout=3):
+                pass
+            record("MySQL 服务", PASS, "127.0.0.1:3306 可连接")
+        except OSError as exc:
             record(
                 "MySQL 服务",
                 WARN,
-                first_line(out) if out else "无响应",
-                "brew services start mysql@8.4",
+                f"端口 3306 不可连接（{exc.__class__.__name__}）",
+                "本机由 LaunchAgent 托管：launchctl kickstart -k gui/$(id -u)/com.local.mysql",
             )
     else:
         record(
             "MySQL 客户端",
             WARN,
-            "未找到（mysql@8.4 为 keg-only，需加入 PATH）",
-            'export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"',
+            "未在 PATH、/opt/homebrew/opt/mysql@8.4/bin、~/mysql/*/bin 中找到",
+            "把客户端目录加入 ~/.zprofile 的 PATH",
+        )
+
+
+def resolve_mysql_bin(name: str) -> str:
+    """在常见安装位置查找 MySQL 可执行文件，返回绝对路径或空串。
+
+    本机实际安装是 Oracle 官方 tarball（~/mysql/mysql-<版本>-<平台>/bin），
+    不在 Homebrew 前缀下，因此不能只依赖 shutil.which。
+    """
+    candidates = [
+        Path("/opt/homebrew/opt/mysql@8.4/bin") / name,
+        Path("/opt/homebrew/opt/mysql/bin") / name,
+        Path("/usr/local/mysql/bin") / name,
+    ]
+    # Oracle tarball：~/mysql/mysql-8.4.7-macos15-arm64/bin
+    candidates.extend(sorted(Path.home().glob(f"mysql/mysql-*/bin/{name}"), reverse=True))
+    for path in candidates:
+        if path.is_file() and os.access(path, os.X_OK):
+            return str(path)
+    return ""
+
+
+def check_database() -> None:
+    """用项目配置真实连一次数据库。
+
+    这一步的价值在于：它验证的是"应用能不能连上"，而不只是"客户端装没装"。
+    失败只降级为 WARN——阶段 1 之前允许数据库尚未就绪。
+    """
+    try:
+        sys.path.insert(0, str(PROJECT_ROOT))
+        from src import config  # noqa: PLC0415 延迟导入，避免依赖缺失时整个脚本崩掉
+
+        from sqlalchemy import create_engine, text  # noqa: PLC0415
+
+        engine = create_engine(config.mysql_url(), pool_pre_ping=True, connect_args={"connect_timeout": 5})
+        with engine.connect() as conn:
+            version = conn.execute(text("SELECT VERSION()")).scalar()
+            database = conn.execute(text("SELECT DATABASE()")).scalar()
+        record("数据库连接", PASS, f"{database} @ MySQL {version}（用户 {config.MYSQL_USER}）")
+    except ModuleNotFoundError as exc:
+        record("数据库连接", WARN, f"缺少依赖: {exc.name}", "pip install -r requirements.txt")
+    except Exception as exc:  # 连接/鉴权/库不存在都归到这里
+        record(
+            "数据库连接",
+            WARN,
+            f"{type(exc).__name__}: {str(exc)[:120]}",
+            "检查 .env 中的 MYSQL_* 配置与 ~/mysql/ROOT_PASSWORD.txt",
         )
 
     # ---- VS Code ----
@@ -334,6 +387,7 @@ def main() -> int:
     check_system()
     check_python()
     check_tools()
+    check_database()
     check_project()
     render()
 
