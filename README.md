@@ -29,7 +29,7 @@
 | 1 | 数据获取与质量审查 | ✅ 完成（24 项检查，5 个实质问题已定处置） |
 | 2 | 指标分析与用户运营 | ✅ 完成（17 项 SQL/Pandas 对账全一致，16 个单测通过） |
 | 3 | A/B Test 与 AI 使用分析 | ✅ 完成（23 列对账全一致，框架自校验 6 项通过，83 个单测） |
-| 4 | RAG 知识库与检索 | 未开始 |
+| 4 | RAG 知识库与检索 | ✅ 完成（12 份文档 / 67 块 / Hit@3 1.0，幂等验收通过） |
 | 5 | RAG + 业务数据 + LLM 集成 | 未开始 |
 | 6 | 最终报告与复现验收 | 未开始 |
 
@@ -47,6 +47,8 @@
 | [`data_simulation_method.md`](docs/data_simulation_method.md) | **模拟数据怎么生成、能证明什么、不能证明什么** |
 | [`ai_usage_findings.md`](docs/ai_usage_findings.md) | AI 请求量、错误、延迟、成本与集中度 |
 | [`ab_test_report.md`](docs/ab_test_report.md) | A/B 结论、护栏、检验框架自校验 |
+| [`rag_design.md`](docs/rag_design.md) | 知识库构成、切块策略、索引幂等、检索配置 |
+| [`rag_evaluation_report.md`](docs/rag_evaluation_report.md) | **检索指标与它的局限**（含失败案例） |
 
 > **阶段 1 的关键结论：** 该数据集的 `signup_date` 与使用时间不连贯——490/500 个账户的首次使用
 > 早于注册日。因此「注册→首次使用」的激活漏斗**不能**用真实数据构造，已改为「以首次使用日为锚」
@@ -192,8 +194,12 @@ python scripts/validate_ab_harness.py          # 检验框架自校验（Monte C
 python scripts/check_rag_env.py --download   # 首次下载模型（走 HF 镜像，95.8MB）
 python scripts/check_rag_env.py              # 之后全离线自检（11 项）
 
+# ---- 阶段 4：知识库与检索 ----
+python scripts/build_knowledge_base.py         # 建索引（幂等，可反复运行）
+python scripts/evaluate_retrieval.py           # 18 题检索评估 + 三组配置对照
+
 # ---- 测试 ----
-pytest -q                             # 83 个单元测试
+pytest -q                             # 126 个单元测试
 ```
 
 ---

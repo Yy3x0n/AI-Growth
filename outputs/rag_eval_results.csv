@@ -1,0 +1,19 @@
+﻿id,type,question,expected,top1_doc,top1_distance,top3_docs,hit@3,recall@3,top1_ok,mrr
+S01,single,激活率按注册日算出来只有 1.4%，这个数字能用吗？,03_activation_funnel,03_activation_funnel,0.2796,"03_activation_funnel,01_metric_definitions,06_data_quality_limits",True,1.0,True,1.0
+S02,single,数据里流失事件表、churn_flag 和账户数三个数对不上，报告里该用哪个？,01_metric_definitions,01_metric_definitions,0.2172,"01_metric_definitions,10_churn_save_playbook,10_churn_save_playbook",True,1.0,True,1.0
+S03,single,风险关注层是怎么划出来的？为什么不用错误率 75 分位？,02_customer_segments,02_customer_segments,0.3272,"02_customer_segments,02_customer_segments,12_incident_response",True,1.0,True,1.0
+S04,single,三个 AI 功能里哪个最费钱，为什么？,04_ai_cost_and_latency,04_ai_cost_and_latency,0.351,"04_ai_cost_and_latency,07_product_overview,11_pricing_and_packaging",True,1.0,True,1.0
+S05,single,实验组主指标涨了但工单也涨了，按什么标准判断能不能上线？,05_ab_test_protocol,05_ab_test_protocol,0.3548,"05_ab_test_protocol,05_ab_test_protocol,08_onboarding_playbook",True,1.0,True,1.0
+S06,single,我们能不能算一下日活用户数和人均使用时长？,06_data_quality_limits,01_metric_definitions,0.3624,"01_metric_definitions,06_data_quality_limits,06_data_quality_limits",True,1.0,False,0.5
+S07,single,Basic、Pro、Enterprise 三档套餐分别包含什么？,07_product_overview,11_pricing_and_packaging,0.2989,"11_pricing_and_packaging,07_product_overview,11_pricing_and_packaging",True,1.0,False,0.5
+S08,single,新客户接入后的七日引导具体要做哪些事？,08_onboarding_playbook,08_onboarding_playbook,0.2491,"08_onboarding_playbook,08_onboarding_playbook,11_pricing_and_packaging",True,1.0,True,1.0
+S09,single,一个工单在什么情况下需要升级到工程团队？,09_service_escalation_sop,09_service_escalation_sop,0.3092,"09_service_escalation_sop,09_service_escalation_sop,12_incident_response",True,1.0,True,1.0
+S10,single,客户说价格太贵要流失了，能不能直接给折扣留住？,10_churn_save_playbook,10_churn_save_playbook,0.3128,"10_churn_save_playbook,11_pricing_and_packaging,10_churn_save_playbook",True,1.0,True,1.0
+S11,single,什么信号出现时应该主动找客户谈扩容？,11_pricing_and_packaging,11_pricing_and_packaging,0.347,"11_pricing_and_packaging,08_onboarding_playbook,11_pricing_and_packaging",True,1.0,True,1.0
+S12,single,线上出故障之后复盘要写哪些内容？,12_incident_response,12_incident_response,0.3654,"12_incident_response,12_incident_response,10_churn_save_playbook",True,1.0,True,1.0
+X01,cross,引导流程让七日激活率提升了，但工单量也上升了，这种情况该怎么决策？,"05_ab_test_protocol,08_onboarding_playbook",08_onboarding_playbook,0.2862,"08_onboarding_playbook,08_onboarding_playbook,05_ab_test_protocol",True,1.0,True,1.0
+X02,cross,高价值客户提出降档，应该怎么处理？,"11_pricing_and_packaging,10_churn_save_playbook",11_pricing_and_packaging,0.2206,"11_pricing_and_packaging,11_pricing_and_packaging,10_churn_save_playbook",True,1.0,True,1.0
+X03,cross,想限制 AI 调用量来降成本，会带来什么副作用？,"04_ai_cost_and_latency,11_pricing_and_packaging",11_pricing_and_packaging,0.3729,"11_pricing_and_packaging,11_pricing_and_packaging,04_ai_cost_and_latency",True,1.0,True,1.0
+R01,refuse,我们主要竞品的定价是多少？比我们便宜还是贵？,,11_pricing_and_packaging,0.4611,"11_pricing_and_packaging,11_pricing_and_packaging,04_ai_cost_and_latency",,,,
+R02,refuse,2025 年的营收目标是多少？完成进度如何？,,05_ab_test_protocol,0.4722,"05_ab_test_protocol,06_data_quality_limits,08_onboarding_playbook",,,,
+R03,refuse,账户 A-2e4581 上个月提交的工单具体说了什么问题？,,08_onboarding_playbook,0.4126,"08_onboarding_playbook,09_service_escalation_sop,06_data_quality_limits",,,,

@@ -1,0 +1,127 @@
+# RAG 检索评估集 v1（冻结版）
+#
+# 冻结纪律：本文件在构建索引**之前**写好，写完即冻结。
+# 禁止在看到检索结果后修改题目或预期文档——那等于自己出题自己答。
+# 变更只能通过新增 v2 并重新标注，不能就地改 v1。
+#
+# 构成：12 题单文档（覆盖 12 份文档各一题）+ 3 题跨文档 + 3 题应拒答 = 18 题
+# 标注：expected_docs 为预期应被检索到的文档（最多 2 个），用于计算 Hit@3 / Recall@3
+# 拒答题 expected_docs 为空，正确行为是明确回答「知识库未覆盖」，不得用常识填补
+
+meta:
+  name: eval-set-v1
+  frozen_at: "2026-11-02"
+  total: 18
+  note: 拒答题不计入 Hit@3，单独统计拒答准确率
+
+questions:
+  # ---------- 12 题：单文档，覆盖每一份知识文档 ----------
+  - id: S01
+    type: single
+    question: 激活率按注册日算出来只有 1.4%，这个数字能用吗？
+    expected_docs: [03_activation_funnel]
+    note: 考察是否识别出时间轴断裂导致的口径失效
+
+  - id: S02
+    type: single
+    question: 数据里流失事件表、churn_flag 和账户数三个数对不上，报告里该用哪个？
+    expected_docs: [01_metric_definitions]
+    note: 流失三口径，主口径取事件表去重账户
+
+  - id: S03
+    type: single
+    question: 风险关注层是怎么划出来的？为什么不用错误率 75 分位？
+    expected_docs: [02_customer_segments]
+    note: 考察是否知道 P75 会导致垃圾桶层
+
+  - id: S04
+    type: single
+    question: 三个 AI 功能里哪个最费钱，为什么？
+    expected_docs: [04_ai_cost_and_latency]
+    note: 文档总结 30% 请求 / 53% 成本，根因在输入 token
+
+  - id: S05
+    type: single
+    question: 实验组主指标涨了但工单也涨了，按什么标准判断能不能上线？
+    expected_docs: [05_ab_test_protocol]
+    note: 三重决策框架
+
+  - id: S06
+    type: single
+    question: 我们能不能算一下日活用户数和人均使用时长？
+    expected_docs: [06_data_quality_limits]
+    note: 无 user 粒度，不可计算
+
+  - id: S07
+    type: single
+    question: Basic、Pro、Enterprise 三档套餐分别包含什么？
+    expected_docs: [07_product_overview]
+    note: 套餐差异
+
+  - id: S08
+    type: single
+    question: 新客户接入后的七日引导具体要做哪些事？
+    expected_docs: [08_onboarding_playbook]
+    note: 七日路径
+
+  - id: S09
+    type: single
+    question: 一个工单在什么情况下需要升级到工程团队？
+    expected_docs: [09_service_escalation_sop]
+    note: 升级的三个触发条件
+
+  - id: S10
+    type: single
+    question: 客户说价格太贵要流失了，能不能直接给折扣留住？
+    expected_docs: [10_churn_save_playbook]
+    note: 反对无差别折扣的理由
+
+  - id: S11
+    type: single
+    question: 什么信号出现时应该主动找客户谈扩容？
+    expected_docs: [11_pricing_and_packaging]
+    note: 扩容三信号
+
+  - id: S12
+    type: single
+    question: 线上出故障之后复盘要写哪些内容？
+    expected_docs: [12_incident_response]
+    note: 四问结构
+
+  # ---------- 3 题：跨文档，需要两份以上证据 ----------
+  - id: X01
+    type: cross
+    question: 引导流程让七日激活率提升了，但工单量也上升了，这种情况该怎么决策？
+    expected_docs: [05_ab_test_protocol, 08_onboarding_playbook]
+    note: 决策框架 + 引导的固有副作用
+
+  - id: X02
+    type: cross
+    question: 高价值客户提出降档，应该怎么处理？
+    expected_docs: [11_pricing_and_packaging, 10_churn_save_playbook]
+    note: 降档处理原则 + 原因码分级
+
+  - id: X03
+    type: cross
+    question: 想限制 AI 调用量来降成本，会带来什么副作用？
+    expected_docs: [04_ai_cost_and_latency, 11_pricing_and_packaging]
+    note: 集中度与限流策略 + AI 额度与套餐的关系
+
+  # ---------- 3 题：应拒答，知识库无答案 ----------
+  - id: R01
+    type: refuse
+    question: 我们主要竞品的定价是多少？比我们便宜还是贵？
+    expected_docs: []
+    note: 知识库无竞品定价信息，仅流失原因码里有 competitor 这一标签
+
+  - id: R02
+    type: refuse
+    question: 2025 年的营收目标是多少？完成进度如何？
+    expected_docs: []
+    note: 观察期止于 2024-12，且知识库无目标设定
+
+  - id: R03
+    type: refuse
+    question: 账户 A-2e4581 上个月提交的工单具体说了什么问题？
+    expected_docs: []
+    note: 知识库不含逐账户工单正文，只有聚合口径
