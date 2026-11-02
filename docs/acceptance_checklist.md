@@ -38,7 +38,7 @@
 | 13 | 构建知识库索引 | 37s | 12 文档 → 67 块 |
 | 14 | 检索评估 | 36s | Hit@3 1.0 / Top1 0.8667 / MRR 0.9333 |
 | 15 | 生成诊断报告 | 180s | 3 份全部「正常」，审计通过 |
-| 16 | 生成图表与看板 | 3s | 6 张图 + `dashboard.html`（0.51 MB） |
+| 16 | 生成图表与看板 | — | 6 张图 + `dashboard_static.html` + **ECharts 交互版 `dashboard.html`**（1.03 MB，KPI 卡/增长/分层/AI/实验四区） |
 | 17 | 单元测试 | 49s | **200 passed** |
 | 18 | 密钥扫描 | 2s | 119 文件零告警 |
 
@@ -112,7 +112,7 @@ venv python:   Python 3.11.16 → .venv/bin/python
 | RAG 模块 | `src/rag/chunker.py`、`embedding.py`、`store.py`、`retriever.py`、`audit.py`、`assistant.py` | ✅ |
 | LLM 客户端 | `src/llm_client.py`（glm / deepseek / mock 可切换） | ✅ |
 | 白名单取数 | `src/ops_metrics.py`（三场景 + 四重参数校验） | ✅ |
-| 脚本 | 16 个（下载/画像/装载/分析/模拟/分层/建库/评估/问答/看板/复现/密钥检查等） | ✅ |
+| 脚本 | 18 个（含 BI 数据层与交互看板生成器） | ✅ |
 | 知识库 | `knowledge_base/` 12 份文档 + `eval/questions.yaml`（18 题冻结） | ✅ |
 | 文档 | 18 份（设计基线、数据字典、质量报告、数据清单、能力边界、指标字典、分层、策略、模拟方法、模拟清单、A/B、AI 使用、RAG 设计、RAG 评估、LLM 集成、项目范围、最终报告、验收清单） | ✅ |
 | 生成物 | `outputs/tables/*.csv`（24 张）、`outputs/figures/*.png`（6 张）、`dashboard.html`、`reports/*.md`（3 份） | ✅ |
@@ -124,7 +124,7 @@ venv python:   Python 3.11.16 → .venv/bin/python
 
 | 项 | 状态 | 原因 |
 |---|---|---|
-| Tableau 看板 | 未做，改为自包含 HTML | Tableau 需桌面客户端，他人克隆仓库无法复现；HTML 双击可看 |
+| Tableau 看板 | 未做，改为自包含 ECharts 交互 HTML | Tableau 需桌面客户端且 .twb 手写 schema 脆弱，他人克隆仓库无法复现；ECharts 内联进单文件 HTML，双击可看、可交互筛选 |
 | Jupyter Notebook | 未做，改为可执行脚本 | 任务书原计划 4 个 Notebook。实际全部分析以脚本形式提供：可被 `reproduce.sh` 串联、可被 pytest 覆盖、git diff 可读。Notebook 的隐藏状态与输出难以复核，不适合作为复现入口 |
 | 真实注册→激活漏斗 | 未做 | T1 时间轴不连贯（490/500 账户首次使用早于注册日），改用「注册→首次付费订阅」 |
 | 用户级指标（DAU/人均时长） | 未做 | 数据中无 user 级表 |

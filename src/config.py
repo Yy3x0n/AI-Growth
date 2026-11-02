@@ -33,6 +33,13 @@ TABLE_DIR = OUTPUT_DIR / "tables"
 FIGURE_DIR = OUTPUT_DIR / "figures"
 REPORT_DIR = OUTPUT_DIR / "reports"
 
+# BI 数据层：面向看板/BI 工具重新整理过的宽表，与 outputs/tables 的分析产物分开，
+# 避免"分析结果"和"看板数据源"互相污染。看板从 outputs/bi 读取。
+BI_DIR = OUTPUT_DIR / "bi"
+
+# 前端资源（ECharts 等），构建看板时内联进单文件，保证离线可用
+ASSET_DIR = PROJECT_ROOT / "src" / "assets"
+
 SQL_DIR = PROJECT_ROOT / "sql"
 
 # 原始数据文件名（阶段 1 以下载后的实际文件名为准，若有出入在此处改一处即可）

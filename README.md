@@ -52,7 +52,7 @@
 | [`rag_design.md`](docs/rag_design.md) | 知识库构成、切块策略、索引幂等、检索配置 |
 | [`rag_evaluation_report.md`](docs/rag_evaluation_report.md) | **检索指标与它的局限**（含失败案例） |
 | [`llm_integration.md`](docs/llm_integration.md) | **LLM 选型、8 段报告、数字审计能查什么/查不了什么** |
-| [`dashboard.html`](outputs/dashboard.html) | 6 图看板（图片内嵌，双击即可看） |
+| [`dashboard.html`](outputs/dashboard.html) | **交互看板**（ECharts 单文件，含 KPI 卡/增长/分层/AI/实验四区，双击即可看） |
 
 > **阶段 1 的关键结论：** 该数据集的 `signup_date` 与使用时间不连贯——490/500 个账户的首次使用
 > 早于注册日。因此「注册→首次使用」的激活漏斗**不能**用真实数据构造，已改为「以首次使用日为锚」
@@ -265,7 +265,9 @@ python scripts/ask_ops_assistant.py --scenario low_activity_customer --as-of 202
 # 退出码：0 正常 / 1 降级（模型未过审计）/ 2 参数错误
 
 # ---- 阶段 6：看板与验收 ----
-python scripts/build_dashboard.py     # 6 张图 + outputs/dashboard.html（图片内嵌，离线可看）
+python scripts/build_dashboard.py       # 6 张 PNG 图 + 静态图版看板（dashboard_static.html）
+python scripts/build_bi_dataset.py      # BI 数据层（维度表 + 事实表，outputs/bi/）
+python scripts/build_html_dashboard.py  # 交互版看板 -> outputs/dashboard.html（ECharts 内联，离线双击可看）
 
 # ---- 测试 ----
 pytest -q                             # 200 个单元测试

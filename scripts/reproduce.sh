@@ -153,7 +153,9 @@ step_reports() {
 }
 
 step_dashboard() {
-  "$PY" scripts/build_dashboard.py
+  "$PY" scripts/build_dashboard.py        # 6 张 PNG 图 + 静态图版看板
+  "$PY" scripts/build_bi_dataset.py       # BI 数据层（维度表 + 事实表 CSV）
+  "$PY" scripts/build_html_dashboard.py   # 交互版看板（ECharts 单文件）
 }
 
 step_tests() {

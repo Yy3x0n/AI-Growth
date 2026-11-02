@@ -268,11 +268,13 @@ python scripts/build_knowledge_base.py    # 建索引（幂等）
 python scripts/evaluate_retrieval.py
 python scripts/ask_ops_assistant.py --scenario activation_diagnosis \
     --start-date 2024-07-01 --end-date 2024-09-30
-python scripts/build_dashboard.py         # 图表 + HTML 看板
+python scripts/build_dashboard.py         # 6 张 PNG 图 + 静态图版看板
+python scripts/build_bi_dataset.py && python scripts/build_html_dashboard.py
+                                          # BI 数据层 + 交互版看板（ECharts 单文件）
 pytest -q
 ```
 
-产物：`outputs/tables/*.csv`（指标表）、`outputs/figures/*.png`、`outputs/dashboard.html`（离线可看）、
+产物：`outputs/tables/*.csv`（指标表）、`outputs/figures/*.png`、`outputs/dashboard.html`（ECharts 交互看板，离线可看）、
 `outputs/reports/*.md`（诊断报告）。
 
 ---
@@ -288,7 +290,8 @@ pytest -q
 | RAG | [`rag_design.md`](rag_design.md)、[`rag_evaluation_report.md`](rag_evaluation_report.md) |
 | LLM | [`llm_integration.md`](llm_integration.md) |
 | 设计 | [`00_requirements_and_design.md`](00_requirements_and_design.md)（14 条勘误与处置） |
-| 看板 | `outputs/dashboard.html` |
+| 看板（交互版） | `outputs/dashboard.html` |
+| 看板（静态图版） | `outputs/dashboard_static.html` |
 
 ---
 

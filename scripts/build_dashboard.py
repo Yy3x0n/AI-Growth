@@ -438,10 +438,11 @@ def main() -> int:
         print(f"  已生成 {key}.png")
 
     html = build_html(images, collect_facts(), font_note)
-    out = config.OUTPUT_DIR / "dashboard.html"
+    out = config.OUTPUT_DIR / "dashboard_static.html"
     out.write_text(html, encoding="utf-8")
     size_mb = out.stat().st_size / 1e6
-    print(f"\n看板已生成：{out}（{size_mb:.2f} MB，图片内嵌，离线可看）")
+    print(f"\n静态图版看板已生成：{out}（{size_mb:.2f} MB，图片内嵌，离线可看）")
+    print("交互版看板请运行 scripts/build_html_dashboard.py -> outputs/dashboard.html")
     return 0
 
 
