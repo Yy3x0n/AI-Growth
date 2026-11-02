@@ -129,6 +129,33 @@ cp .env.example .env
 `.env` 已在 `.gitignore` 中，**永不入库**。
 没有 Key 时可以加 `--mock` 走离线模式验证全链路（不会联网，内容带 `[MOCK]` 标记）。
 
+#### 提交前密钥拦截（公开仓库必做）
+
+本仓库是公开的，因此装了一道机械护栏——**换台机器克隆后需执行一次**：
+
+```bash
+git config core.hooksPath .githooks
+```
+
+之后每次 commit 会自动运行 `scripts/check_no_secrets.py`，拦截两类事故：
+
+| 事故 | 拦截方式 |
+|---|---|
+| `git add -f .env`（强制添加绕过 `.gitignore`） | 按文件名直接拒绝 |
+| 把 key 粘进 README / 脚本 / 文档 | 按格式识别（智谱 `32hex.16位`、`sk-`、`gh?_`、`AKIA`、私钥头等） |
+
+也可以手动全仓扫描：
+
+```bash
+python scripts/check_no_secrets.py --all
+```
+
+> 已实测：全仓 116 个文件零误报（`password=config.MYSQL_PASSWORD` 这类变量引用不会被误判）；
+> 三条真实泄露路径（文档粘 key、`sk-` 令牌、强密码硬编码）全部拦下。
+>
+> **如果密钥曾经进过提交历史，删文件是不够的**——历史仍可检出。唯一正确处置是
+> 去服务商后台轮换密钥。本仓库已核对：密钥从未进入任何提交，远端代码搜索返回 0 条。
+
 ### 4. RAG 环境（Embedding + 向量库）
 
 三件事都是本机实测踩出来的，照抄即可：

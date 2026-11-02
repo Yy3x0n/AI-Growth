@@ -1,0 +1,28 @@
+#!/bin/sh
+# 提交前密钥检查。
+#
+# 启用方式（每个克隆需执行一次，已写入 README）：
+#   git config core.hooksPath .githooks
+#
+# 为什么用 core.hooksPath 而不是 .git/hooks：
+#   .git/hooks 不进版本库，换台机器就失效；.githooks 可提交，规则跟着仓库走。
+#
+# 为什么优先用 .venv 里的解释器：
+#   脚本本身只用标准库，用系统 python3 也能跑；但统一解释器可以避免
+#   某些机器上 python3 指向 2.x 或未安装的情况。
+
+set -e
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+if [ -x ".venv/bin/python" ]; then
+    PY=".venv/bin/python"
+elif command -v python3 >/dev/null 2>&1; then
+    PY="python3"
+else
+    echo "⚠️  未找到 python3，跳过密钥检查（建议安装后重试）" >&2
+    exit 0
+fi
+
+exec "$PY" scripts/check_no_secrets.py
