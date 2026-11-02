@@ -68,11 +68,20 @@ VS Code 中：`Cmd + Shift + P` → `Python: Select Interpreter` → 选择
 
 ### 2. Homebrew 与 MySQL
 
-Homebrew 前缀为标准 `/opt/homebrew`（arm64 预编译包才可用）。MySQL 使用 8.4 LTS 版本化公式：
+Homebrew 已安装到标准前缀 `/opt/homebrew`（arm64 预编译包要求该路径）。
+
+MySQL 使用 8.4 LTS 版本化公式，安装与初始化已封装为脚本，**在 VS Code 终端执行一次**：
 
 ```bash
-brew install mysql@8.4
+bash scripts/setup_mysql.sh
 ```
+
+脚本会依次完成：安装 `mysql@8.4` → 启动 `brew services` → 等待就绪 → 创建库 `ai_growth_ops`
+与专用用户 `ai_ops_user`（密码取自 `.env`）→ 用应用用户验证连接。脚本幂等，可重复执行。
+
+> 为什么需要手动跑一次：Homebrew 安装 bottle 时会用 `sandbox-exec` 二次封装，
+> 在已处于 macOS 沙箱内的 Agent 环境中会因嵌套沙箱被拒绝；且 Homebrew 明确拒在
+> 默认前缀下跳过沙箱。详见 `docs/00_requirements_and_design.md` 第 9.6 节。
 
 > `mysql@8.4` 是 **keg-only**，不会自动进 PATH。已写入 `~/.zprofile`：
 > `export PATH="/opt/homebrew/opt/mysql@8.4/bin:$PATH"`
