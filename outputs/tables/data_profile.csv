@@ -1,0 +1,51 @@
+table,column,dtype,n_rows,n_non_null,null_rate,n_unique,min,max,mean
+accounts,account_id,str,500,500,0.0,500,A-2e4581 / A-43a9e3 / A-0a282f,top1_count=1,
+accounts,account_name,str,500,500,0.0,500,Company_0 / Company_1 / Company_2,top1_count=1,
+accounts,industry,str,500,500,0.0,5,DevTools / FinTech / Cybersecurity,top1_count=113,
+accounts,country,str,500,500,0.0,7,US / UK / IN,top1_count=291,
+accounts,signup_date,datetime64[us],500,500,0.0,370,2023-01-02 00:00:00,2024-12-31 00:00:00,
+accounts,referral_source,str,500,500,0.0,5,organic / other / ads,top1_count=114,
+accounts,plan_tier,str,500,500,0.0,3,Pro / Basic / Enterprise,top1_count=178,
+accounts,seats,int64,500,500,0.0,73,1.0,163.0,20.56
+accounts,is_trial,bool,500,500,0.0,2,0.0,1.0,0.194
+accounts,churn_flag,bool,500,500,0.0,2,0.0,1.0,0.22
+subscriptions,subscription_id,str,5000,5000,0.0,5000,S-8cec59 / S-0f6f44 / S-51c0d1,top1_count=1,
+subscriptions,account_id,str,5000,5000,0.0,500,A-d4ac0e / A-5a92e7 / A-592832,top1_count=19,
+subscriptions,start_date,datetime64[us],5000,5000,0.0,625,2023-01-09 00:00:00,2024-12-31 00:00:00,
+subscriptions,end_date,datetime64[us],5000,486,0.9028,208,2023-04-05 00:00:00,2024-12-31 00:00:00,
+subscriptions,plan_tier,str,5000,5000,0.0,3,Enterprise / Pro / Basic,top1_count=1723,
+subscriptions,seats,int64,5000,5000,0.0,123,1.0,189.0,29.852
+subscriptions,mrr_amount,int64,5000,5000,0.0,306,0.0,33830.0,2267.7494
+subscriptions,arr_amount,int64,5000,5000,0.0,306,0.0,405960.0,27212.9928
+subscriptions,is_trial,bool,5000,5000,0.0,2,0.0,1.0,0.1556
+subscriptions,upgrade_flag,bool,5000,5000,0.0,2,0.0,1.0,0.1058
+subscriptions,downgrade_flag,bool,5000,5000,0.0,2,0.0,1.0,0.0436
+subscriptions,churn_flag,bool,5000,5000,0.0,2,0.0,1.0,0.0972
+subscriptions,billing_frequency,str,5000,5000,0.0,2,monthly / annual,top1_count=2539,
+subscriptions,auto_renew_flag,bool,5000,5000,0.0,2,0.0,1.0,0.801
+feature_usage,usage_id,str,25000,25000,0.0,24979,U-25b56c / U-662254 / U-c878da,top1_count=2,
+feature_usage,subscription_id,str,25000,25000,0.0,4967,S-0896f4 / S-52385a / S-115823,top1_count=16,
+feature_usage,usage_date,datetime64[us],25000,25000,0.0,731,2023-01-01 00:00:00,2024-12-31 00:00:00,
+feature_usage,feature_name,str,25000,25000,0.0,40,feature_12 / feature_32 / feature_6,top1_count=659,
+feature_usage,usage_count,int64,25000,25000,0.0,27,0.0,26.0,10.021
+feature_usage,usage_duration_secs,int64,25000,25000,0.0,4168,0.0,12696.0,3042.2029
+feature_usage,error_count,int64,25000,25000,0.0,9,0.0,8.0,0.5643
+feature_usage,is_beta_feature,bool,25000,25000,0.0,2,0.0,1.0,0.1018
+support_tickets,ticket_id,str,2000,2000,0.0,2000,T-0024de / T-4d04b9 / T-d5e12f,top1_count=1,
+support_tickets,account_id,str,2000,2000,0.0,492,A-bb3bd4 / A-3ce5b8 / A-e98302,top1_count=11,
+support_tickets,submitted_at,datetime64[us],2000,2000,0.0,671,2023-01-02 00:00:00,2024-12-31 00:00:00,
+support_tickets,closed_at,datetime64[us],2000,2000,0.0,1893,2023-01-03 03:00:00,2024-12-31 19:00:00,
+support_tickets,resolution_time_hours,float64,2000,2000,0.0,72,1.0,72.0,35.861
+support_tickets,priority,str,2000,2000,0.0,4,urgent / high / medium,top1_count=514,
+support_tickets,first_response_time_minutes,int64,2000,2000,0.0,180,1.0,180.0,88.48
+support_tickets,satisfaction_score,float64,2000,1175,0.4125,3,3.0,5.0,3.9813
+support_tickets,escalation_flag,bool,2000,2000,0.0,2,0.0,1.0,0.0475
+churn_events,churn_event_id,str,600,600,0.0,600,C-816288 / C-5a81e7 / C-a174be,top1_count=1,
+churn_events,account_id,str,600,600,0.0,352,A-0a62f5 / A-180abf / A-37f969,top1_count=5,
+churn_events,churn_date,datetime64[us],600,600,0.0,311,2023-01-25 00:00:00,2024-12-31 00:00:00,
+churn_events,reason_code,str,600,600,0.0,6,features / support / budget,top1_count=114,
+churn_events,refund_amount_usd,float64,600,600,0.0,142,0.0,392.92,14.4204
+churn_events,preceding_upgrade_flag,bool,600,600,0.0,2,0.0,1.0,0.205
+churn_events,preceding_downgrade_flag,bool,600,600,0.0,2,0.0,1.0,0.0883
+churn_events,is_reactivation,bool,600,600,0.0,2,0.0,1.0,0.1017
+churn_events,feedback_text,str,600,452,0.2467,3,too expensive / missing features / switched to competitor,top1_count=161,

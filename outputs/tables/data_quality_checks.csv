@@ -1,0 +1,25 @@
+rule_id,table,check,hits,total,rate,severity,action
+Q-01,accounts,account_id 唯一,0,500,0.0,high,主键冲突则无法作为账户维度使用
+Q-02,subscriptions,subscription_id 唯一,0,5000,0.0,high,主键冲突会重复计入 MRR
+Q-03,support_tickets,ticket_id 唯一,0,2000,0.0,high,主键冲突会重复计工单量
+Q-04,churn_events,churn_event_id 唯一,0,600,0.0,high,主键冲突会重复计流失事件
+Q-05,feature_usage,usage_id 重复（超额行数）,21,25000,0.0008,high,不删除：重复 usage_id 的其余字段不同，属业务事件而非脏复制；下游用整行去重或保留并标记
+Q-06,feature_usage,整行完全重复,0,25000,0.0,high,若为 0 则说明重复仅发生在 ID 维度，可用整行去重安全处理
+Q-07,feature_usage,subscription_id 无法关联 subscriptions,0,25000,0.0,high,孤子记录无法归属账户，必须排查
+Q-08,subscriptions,account_id 无法关联 accounts,0,5000,0.0,high,同上
+Q-09,support_tickets,account_id 无法关联 accounts,0,2000,0.0,high,同上
+Q-10,churn_events,account_id 无法关联 accounts,0,600,0.0,high,同上
+Q-11,subscriptions,end_date 为空（在营订阅）,4514,5000,0.9028,low,空值代表订阅仍在生效，不是缺失；月度快照按空值视为未完结算
+Q-12,support_tickets,satisfaction_score 为空,825,2000,0.4125,mid,CSAT 分母只能取有评分工单，报告须披露实际样本量，不得按 0 填充
+Q-13,churn_events,feedback_text 为空,148,600,0.2467,low,定性字段缺失，不影响定量指标
+Q-14,subscriptions,end_date 早于 start_date,0,5000,0.0,high,倒挂区间会使时长与留存计算为负
+Q-15,feature_usage,usage_date 早于订阅开始,19142,25000,0.7657,high,超出订阅周期的使用记录会让活跃口径失真
+Q-16,feature_usage,usage_date 晚于订阅结束,290,25000,0.0116,mid,可能是宽限期或数据生成误差，需在口径中说明是否纳入
+Q-17,accounts/churn_events,两处流失账户数不一致,242,352,0.6875,high,churn_events 含复活事件，账户数会大于 churn_flag；流失率口径必须择一并写明
+Q-18,subscriptions,账户存在多条订阅（行数-账户数）,4500,5000,0.9,high,禁止用订阅行数当账户数；MRR 需按账户-月择一有效订阅
+Q-19,subscriptions,同一账户同一月存在多条有效订阅,4695,5257,0.8931,high,MRR 会重复计入；必须定义胜出规则：start_date 最新 > mrr 最高 > subscription_id
+Q-20,subscriptions,mrr_amount <= 0,778,5000,0.1556,mid,零元订阅多为试用，收入类指标需排除或单列
+Q-21,feature_usage,usage_count <= 0,2,25000,0.0001,mid,有记录但无使用次数，计算活跃时需明确是否算作活跃
+Q-22,feature_usage,feature_name 取值域（共 40 个）,40,40,1.0,high,取值为 feature_1..feature_N 编号，无 AI 问答/总结/写作语义；涉及 AI 功能的分析只能用模拟日志，不得把编号功能称为 AI 功能
+Q-23,accounts/feature_usage,账户首次使用日早于注册日,490,500,0.98,high,生成器未保证时间轴连贯；据此无法构建「注册→首次使用」的激活漏斗，激活与留存只能改用「首次使用日」为锚点，或改用模拟数据
+Q-24,feature_usage,使用记录不在该账户任一订阅区间内,213715,275594,0.7755,high,分母为 usage × 该账户订阅数（会放大），此处仅用于判断时间一致性是否成立
