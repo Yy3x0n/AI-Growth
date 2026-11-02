@@ -24,8 +24,9 @@ cryptography
 
 # ---- 配置与网络 ----
 python-dotenv
+# LLM 调用直接用 requests 打 OpenAI 兼容接口，不引入 openai/智谱 SDK：
+# 三家接口同构，自己封一层比绑 SDK 更容易切换供应商，也少一个版本约束。
 requests
-openai
 
 # ---- RAG ----
 chromadb

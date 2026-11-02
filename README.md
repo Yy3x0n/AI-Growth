@@ -30,7 +30,7 @@
 | 2 | 指标分析与用户运营 | ✅ 完成（17 项 SQL/Pandas 对账全一致，16 个单测通过） |
 | 3 | A/B Test 与 AI 使用分析 | ✅ 完成（23 列对账全一致，框架自校验 6 项通过，83 个单测） |
 | 4 | RAG 知识库与检索 | ✅ 完成（12 份文档 / 67 块 / Hit@3 1.0，幂等验收通过） |
-| 5 | RAG + 业务数据 + LLM 集成 | 未开始 |
+| 5 | RAG + 业务数据 + LLM 集成 | ✅ 完成（3 个白名单函数 / 8 段报告 / 数字审计 / 3 份实测报告，188 个单测） |
 | 6 | 最终报告与复现验收 | 未开始 |
 
 ### 文档导航
@@ -49,6 +49,7 @@
 | [`ab_test_report.md`](docs/ab_test_report.md) | A/B 结论、护栏、检验框架自校验 |
 | [`rag_design.md`](docs/rag_design.md) | 知识库构成、切块策略、索引幂等、检索配置 |
 | [`rag_evaluation_report.md`](docs/rag_evaluation_report.md) | **检索指标与它的局限**（含失败案例） |
+| [`llm_integration.md`](docs/llm_integration.md) | **LLM 选型、8 段报告、数字审计能查什么/查不了什么** |
 
 > **阶段 1 的关键结论：** 该数据集的 `signup_date` 与使用时间不连贯——490/500 个账户的首次使用
 > 早于注册日。因此「注册→首次使用」的激活漏斗**不能**用真实数据构造，已改为「以首次使用日为锚」
@@ -64,7 +65,7 @@
 - Embedding：`BAAI/bge-small-zh-v1.5`（本地 CPU 推理，512 维，512 token 上限）
 - PyTorch 2.15（macOS arm64 CPU+MPS，轮子 138MB）
 - 向量库：ChromaDB（本地持久化，`data/chroma/`，不入库）
-- LLM：DeepSeek `deepseek-flash`（仅生成文字，不计算指标）
+- LLM：智谱 GLM `glm-4-flash`（免费额度；仅生成文字，不计算指标）
 
 **明确不使用**：Streamlit、Power BI、Docker、FastAPI、LangChain、LlamaIndex、多智能体框架。
 
@@ -118,10 +119,15 @@ bash scripts/init_database.sh
 
 ```bash
 cp .env.example .env
-# 编辑 .env，填入 DEEPSEEK_API_KEY；MySQL 密码在初始化时已随机生成
+# 编辑 .env：
+#   LLM_PROVIDER=glm
+#   GLM_API_KEY=<你的智谱 Key>      # https://open.bigmodel.cn 免费申请
+#   GLM_MODEL=glm-4-flash
+# MySQL 密码在初始化时已随机生成，无需手填
 ```
 
-`.env` 已在 `.gitignore` 中，**永不入库**。没有 API Key 时可使用 Mock 模式验证流程。
+`.env` 已在 `.gitignore` 中，**永不入库**。
+没有 Key 时可以加 `--mock` 走离线模式验证全链路（不会联网，内容带 `[MOCK]` 标记）。
 
 ### 4. RAG 环境（Embedding + 向量库）
 
@@ -198,8 +204,18 @@ python scripts/check_rag_env.py              # 之后全离线自检（11 项）
 python scripts/build_knowledge_base.py         # 建索引（幂等，可反复运行）
 python scripts/evaluate_retrieval.py           # 18 题检索评估 + 三组配置对照
 
+# ---- 阶段 5：运营诊断助手 ----
+python scripts/ask_ops_assistant.py --scenario activation_diagnosis \
+    --start-date 2024-07-01 --end-date 2024-09-30
+python scripts/ask_ops_assistant.py --scenario feature_adoption_diagnosis \
+    --start-date 2024-10-01 --end-date 2024-12-31
+python scripts/ask_ops_assistant.py --scenario low_activity_customer --as-of 2024-12-31
+# 不联网验证链路（输出带 [MOCK] 标记）：
+#   追加 --mock
+# 退出码：0 正常 / 1 降级（模型未过审计）/ 2 参数错误
+
 # ---- 测试 ----
-pytest -q                             # 126 个单元测试
+pytest -q                             # 188 个单元测试
 ```
 
 ---

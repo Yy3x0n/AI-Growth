@@ -63,9 +63,50 @@ def env(key: str, default: str = "") -> str:
 
 
 # ---- LLM ----
-DEEPSEEK_API_KEY = env("DEEPSEEK_API_KEY")
-DEEPSEEK_BASE_URL = env("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
-DEEPSEEK_MODEL = env("DEEPSEEK_MODEL", "deepseek-flash")
+# 多 provider 抽象：三家都是 OpenAI 兼容的 /chat/completions 接口，
+# 差异只在 base_url、model 名和是否需要思维链 token。切换只改 LLM_PROVIDER。
+#
+# 选型（2026-11-02 实测，见 docs/llm_integration.md）：
+#   glm-4-flash    1.9s  无思维链，JSON 模式可解析，数字零改动 → 默认
+#   glm-4.5-flash  18.8s 带思维链，文采更好但慢约 10 倍
+#   glm-5.3-flash  6.8s  带思维链
+LLM_PROVIDER = env("LLM_PROVIDER", "glm").lower()
+
+# 各家参数集中成表，避免在客户端里散落 if/else
+LLM_PROVIDERS = {
+    "glm": {
+        "api_key": env("GLM_API_KEY"),
+        "base_url": env("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4"),
+        "model": env("GLM_MODEL", "glm-4-flash"),
+        "supports_json_mode": True,
+    },
+    "deepseek": {
+        "api_key": env("DEEPSEEK_API_KEY"),
+        "base_url": env("DEEPSEEK_BASE_URL", "https://api.deepseek.com"),
+        # deepseek 的 OpenAI 兼容路径需要 /v1 前缀
+        "model": env("DEEPSEEK_MODEL", "deepseek-flash"),
+        "supports_json_mode": True,
+    },
+}
+
+LLM_TIMEOUT_SECONDS = int(env("LLM_TIMEOUT_SECONDS", "90"))
+LLM_MAX_RETRIES = int(env("LLM_MAX_RETRIES", "3"))
+LLM_TEMPERATURE = float(env("LLM_TEMPERATURE", "0.2"))
+LLM_MAX_TOKENS = int(env("LLM_MAX_TOKENS", "4096"))
+
+
+def llm_settings(provider: str | None = None) -> dict:
+    """返回当前 provider 的连接参数。
+
+    provider 不存在时抛 ValueError 而不是静默回退到默认值——
+    静默回退会让"我明明配了 deepseek 却在调 glm"这种问题很难发现。
+    """
+    name = (provider or LLM_PROVIDER).lower()
+    if name == "mock":
+        return {"provider": "mock", "api_key": "", "base_url": "", "model": "mock", "supports_json_mode": True}
+    if name not in LLM_PROVIDERS:
+        raise ValueError(f"未知的 LLM_PROVIDER: {name}（可选：{', '.join(LLM_PROVIDERS)}、mock）")
+    return {"provider": name, **LLM_PROVIDERS[name]}
 
 # ---- 数据库 ----
 MYSQL_HOST = env("MYSQL_HOST", "127.0.0.1")
