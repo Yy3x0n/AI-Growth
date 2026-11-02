@@ -96,6 +96,11 @@ RANDOM_SEED = int(env("RANDOM_SEED", "20261102"))
 EMBEDDING_MODEL = env("EMBEDDING_MODEL", "BAAI/bge-small-zh-v1.5")
 EMBEDDING_DEVICE = env("EMBEDDING_DEVICE", "auto")
 
+# 模型下载镜像。huggingface.co 直连在本机返回 502（代理层拒绝），必须走镜像。
+HF_ENDPOINT = env("HF_ENDPOINT", "https://hf-mirror.com")
+# huggingface_hub 新版默认走 Xet 协议，镜像不代理该域名，会报 401。
+HF_HUB_DISABLE_XET = env("HF_HUB_DISABLE_XET", "1")
+
 # bge-small-zh-v1.5 的硬约束：输出 512 维，最大输入 512 token。
 # 中文约 1 字 ≈ 1 token，叠加标点与英文术语后 token 数通常大于字符数，
 # 因此 chunk 上限取 420 汉字留出约 20% 余量，避免静默截断。

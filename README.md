@@ -57,9 +57,10 @@
 ## 技术栈
 
 - Python 3.11（uv 管理，见下文）
-- pandas / numpy / scipy / statsmodels / scikit-learn
+- pandas 3.1 / numpy 2.4 / scipy 1.17 / statsmodels 0.15 / scikit-learn 1.9
 - MySQL 8.4.7（本机已有 Oracle tarball 实例，端口 3306）
-- Embedding：`BAAI/bge-small-zh-v1.5`（本地推理，512 维）
+- Embedding：`BAAI/bge-small-zh-v1.5`（本地 CPU 推理，512 维，512 token 上限）
+- PyTorch 2.15（macOS arm64 CPU+MPS，轮子 138MB）
 - 向量库：ChromaDB（本地持久化，`data/chroma/`，不入库）
 - LLM：DeepSeek `deepseek-flash`（仅生成文字，不计算指标）
 
@@ -120,6 +121,43 @@ cp .env.example .env
 
 `.env` 已在 `.gitignore` 中，**永不入库**。没有 API Key 时可使用 Mock 模式验证流程。
 
+### 4. RAG 环境（Embedding + 向量库）
+
+三件事都是本机实测踩出来的，照抄即可：
+
+**① PyTorch 走清华镜像。** macOS arm64 的轮子只有 **138.5 MB**（Linux CUDA 版是 2GB+，
+网上教程的磁盘预留数字不适用）：
+
+```bash
+uv pip install --index-url https://pypi.tuna.tsinghua.edu.cn/simple torch
+uv pip install --index-url https://pypi.tuna.tsinghua.edu.cn/simple sentence-transformers chromadb
+```
+
+**② 模型必须走镜像。** 本机 `huggingface.co` 直连返回 `CONNECT tunnel failed, 502`：
+
+```bash
+export HF_ENDPOINT="https://hf-mirror.com"
+export HF_HUB_DISABLE_XET=1      # 必须！否则报 401 Unauthorized
+```
+
+> `HF_HUB_DISABLE_XET=1` 不是可选项。huggingface_hub 新版默认用 Xet 协议从
+> `cas-server.xethub.hf.co` 拉取，镜像不代理该域名，会直接 401。
+> 关掉后回落传统 HTTP 下载即可，两者均已写入 `~/.zprofile`。
+
+**③ 下载并自检：**
+
+```bash
+python scripts/check_rag_env.py --download   # 首次：下载 95.8MB 权重（约 98 秒）
+python scripts/check_rag_env.py             # 之后：全离线检查，不触网
+```
+
+自检会验证 11 项，其中三项是关键：向量维度 = 512、tokenizer 上限 = 512、
+用真实 tokenizer 测出的「汉字 → token」比例是否会撞上 chunk 上限。
+
+**一个性能细节：** 按 repo id 加载模型会让 sentence-transformers 逐模块向 hub 发 HEAD 请求，
+模型已缓存时这些请求纯属浪费，且会撞镜像的 429 限流（实测等待 73 秒）。
+`src/rag/embedding.py` 改为**先解析本地快照路径再加载**，加载耗时降到 **0.4 秒**且完全不触网。
+
 ---
 
 ## 常用命令
@@ -149,6 +187,10 @@ python scripts/load_simulated_to_mysql.py      # 建视图 + 装载（含 P95 �
 python scripts/run_ai_analysis.py              # AI 使用分析 + 23 列对账
 python scripts/run_ab_test.py                  # A/B 结论与护栏
 python scripts/validate_ab_harness.py          # 检验框架自校验（Monte Carlo）
+
+# ---- 阶段 4 前置：RAG 环境 ----
+python scripts/check_rag_env.py --download   # 首次下载模型（走 HF 镜像，95.8MB）
+python scripts/check_rag_env.py              # 之后全离线自检（11 项）
 
 # ---- 测试 ----
 pytest -q                             # 83 个单元测试

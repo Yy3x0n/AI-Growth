@@ -30,6 +30,10 @@ openai
 # ---- RAG ----
 chromadb
 sentence-transformers
+# torch 不在此处声明为普通依赖：macOS arm64 的 CPU+MPS 轮子约 138MB，
+# 与 Linux 的 CUDA 版（2GB+）完全不同。安装方式见 README「RAG 环境」一节：
+#   uv pip install --index-url https://pypi.tuna.tsinghua.edu.cn/simple torch
+# 模型权重通过 HF 镜像下载，本机 huggingface.co 直连不可达（502）。
 
 # ---- Notebook ----
 jupyter
