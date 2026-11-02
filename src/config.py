@@ -147,3 +147,82 @@ METRIC_SUBJECT = "account"
 # 激活观察窗口（天）
 ACTIVATION_WINDOW_DAYS = 7
 RETENTION_WINDOWS = (7, 30)
+
+# ---------------------------------------------------------------------------
+# 模拟数据（T2 / T3）的冻结参数
+# ---------------------------------------------------------------------------
+# 设计文档 §6.3 要求：种子、p1、p2、n 全部集中在此，模拟与检验脚本只读不写。
+# 修改本区块等同于更换实验设计，必须在 docs 里留痕，禁止为了"跑出显著"而调参。
+
+# 数据观察期（由阶段 1 实测确定：T1 五表的日期跨度）
+OBSERVATION_START = "2023-01-01"
+OBSERVATION_END = "2024-12-31"
+
+# T3 实验：新手引导 checklist 对「7 日内完成首次有效 AI 任务」的影响
+EXPERIMENT = {
+    "name": "onboarding_checklist_vs_control",
+    # 主指标基线。注意：这是**假设值**而非实测值——T1 数据无生命周期（C-10），
+    # 无法测出真实的新客 7 日激活率。假设依据见 docs/data_simulation_method.md。
+    "baseline_rate": 0.25,
+    # 目标最小可检测效应（相对），由"运营上值得做的下限"倒推，不是由样本量倒推
+    "target_relative_lift": 0.15,
+    "alpha": 0.05,
+    "power": 0.80,
+    # 护栏指标（任一显著恶化即不可上线）
+    "guardrails": {
+        "post_7d_error_rate": {"control": 0.105, "treatment": 0.108, "direction": "lower_is_better"},
+        "support_ticket_7d": {"control": 0.110, "treatment": 0.140, "direction": "lower_is_better"},
+    },
+}
+
+# 由 baseline_rate 与 target_relative_lift 派生的设计参数（不手工填，避免不一致）
+EXPERIMENT["treatment_rate"] = round(
+    EXPERIMENT["baseline_rate"] * (1 + EXPERIMENT["target_relative_lift"]), 6
+)
+
+# T2 模拟 AI 请求日志的功能参数
+# 说明：mix 为请求占比，success_rate 为基线成功率，latency 为中位延迟（毫秒），
+# tokens 为中位 token 数。取值参照公开的 LLM 应用经验值，非真实服务测量值。
+AI_FEATURES = {
+    "AI 问答": {
+        "mix": 0.50, "success_rate": 0.92,
+        "latency_median_ms": 1150, "latency_sigma": 0.55,
+        "input_tokens_median": 620, "output_tokens_median": 180,
+    },
+    "文档总结": {
+        "mix": 0.30, "success_rate": 0.88,
+        "latency_median_ms": 2400, "latency_sigma": 0.60,
+        "input_tokens_median": 3800, "output_tokens_median": 260,
+    },
+    "AI 写作": {
+        "mix": 0.20, "success_rate": 0.90,
+        "latency_median_ms": 1750, "latency_sigma": 0.50,
+        "input_tokens_median": 900, "output_tokens_median": 620,
+    },
+}
+
+# 账户使用强度分层：决定月请求量的量级
+AI_USAGE_TIERS = {
+    "light": {"prob": 0.55, "monthly_requests": 3},
+    "medium": {"prob": 0.33, "monthly_requests": 14},
+    "heavy": {"prob": 0.12, "monthly_requests": 55},
+}
+
+# 月度自然增长系数（模拟产品整体用量增长，非 T1 数据实测）
+AI_MONTHLY_GROWTH = 1.025
+
+# AI 采用率：并非所有账户都会使用 AI 功能
+AI_ADOPTION_RATE = 0.88
+
+# 「有效任务」判定：请求成功，且输出 token 不低于该值。
+# 取 50 是为了排除"空返回 / 一句话敷衍"这类技术成功但业务无价值的请求。
+# 该值同时写入 metric_config 表供 SQL 视图读取，两处必须一致。
+EFFECTIVE_TASK_MIN_OUTPUT_TOKENS = 50
+
+# 模拟故障窗口：用于检验分析能否自动发现异常（而非只算平稳指标）
+SIMULATED_INCIDENT = {
+    "feature": "AI 问答",
+    "start": "2024-06-03",
+    "end": "2024-06-12",
+    "degraded_success_rate": 0.68,
+}

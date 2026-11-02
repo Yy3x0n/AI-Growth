@@ -1,0 +1,202 @@
+month_start,feature_name,error_type,requests
+2023-02-01,AI 写作,rate_limit,2
+2023-02-01,AI 写作,timeout,1
+2023-02-01,AI 问答,model_error,1
+2023-02-01,AI 问答,rate_limit,1
+2023-02-01,文档总结,model_error,1
+2023-02-01,文档总结,rate_limit,2
+2023-03-01,AI 写作,model_error,1
+2023-03-01,AI 写作,rate_limit,1
+2023-03-01,AI 写作,timeout,3
+2023-03-01,AI 问答,model_error,1
+2023-03-01,AI 问答,rate_limit,2
+2023-03-01,AI 问答,timeout,7
+2023-03-01,文档总结,rate_limit,1
+2023-03-01,文档总结,timeout,2
+2023-04-01,AI 写作,model_error,2
+2023-04-01,AI 写作,rate_limit,2
+2023-04-01,AI 写作,timeout,6
+2023-04-01,AI 问答,model_error,3
+2023-04-01,AI 问答,rate_limit,3
+2023-04-01,AI 问答,timeout,6
+2023-04-01,文档总结,rate_limit,1
+2023-04-01,文档总结,timeout,7
+2023-05-01,AI 写作,rate_limit,2
+2023-05-01,AI 写作,timeout,8
+2023-05-01,AI 问答,model_error,3
+2023-05-01,AI 问答,rate_limit,8
+2023-05-01,AI 问答,timeout,13
+2023-05-01,文档总结,model_error,3
+2023-05-01,文档总结,rate_limit,5
+2023-05-01,文档总结,timeout,13
+2023-06-01,AI 写作,model_error,1
+2023-06-01,AI 写作,rate_limit,5
+2023-06-01,AI 写作,timeout,11
+2023-06-01,AI 问答,model_error,8
+2023-06-01,AI 问答,rate_limit,10
+2023-06-01,AI 问答,timeout,22
+2023-06-01,文档总结,model_error,4
+2023-06-01,文档总结,rate_limit,3
+2023-06-01,文档总结,timeout,14
+2023-07-01,AI 写作,model_error,6
+2023-07-01,AI 写作,rate_limit,4
+2023-07-01,AI 写作,timeout,14
+2023-07-01,AI 问答,model_error,9
+2023-07-01,AI 问答,rate_limit,9
+2023-07-01,AI 问答,timeout,31
+2023-07-01,文档总结,model_error,9
+2023-07-01,文档总结,rate_limit,13
+2023-07-01,文档总结,timeout,25
+2023-08-01,AI 写作,model_error,11
+2023-08-01,AI 写作,rate_limit,9
+2023-08-01,AI 写作,timeout,13
+2023-08-01,AI 问答,model_error,16
+2023-08-01,AI 问答,rate_limit,14
+2023-08-01,AI 问答,timeout,36
+2023-08-01,文档总结,model_error,14
+2023-08-01,文档总结,rate_limit,24
+2023-08-01,文档总结,timeout,41
+2023-09-01,AI 写作,model_error,9
+2023-09-01,AI 写作,rate_limit,9
+2023-09-01,AI 写作,timeout,18
+2023-09-01,AI 问答,model_error,18
+2023-09-01,AI 问答,rate_limit,21
+2023-09-01,AI 问答,timeout,39
+2023-09-01,文档总结,model_error,10
+2023-09-01,文档总结,rate_limit,16
+2023-09-01,文档总结,timeout,25
+2023-10-01,AI 写作,model_error,10
+2023-10-01,AI 写作,rate_limit,9
+2023-10-01,AI 写作,timeout,25
+2023-10-01,AI 问答,model_error,19
+2023-10-01,AI 问答,rate_limit,18
+2023-10-01,AI 问答,timeout,40
+2023-10-01,文档总结,model_error,18
+2023-10-01,文档总结,rate_limit,26
+2023-10-01,文档总结,timeout,45
+2023-11-01,AI 写作,model_error,11
+2023-11-01,AI 写作,rate_limit,9
+2023-11-01,AI 写作,timeout,22
+2023-11-01,AI 问答,model_error,14
+2023-11-01,AI 问答,rate_limit,11
+2023-11-01,AI 问答,timeout,67
+2023-11-01,文档总结,model_error,22
+2023-11-01,文档总结,rate_limit,22
+2023-11-01,文档总结,timeout,62
+2023-12-01,AI 写作,model_error,19
+2023-12-01,AI 写作,rate_limit,16
+2023-12-01,AI 写作,timeout,31
+2023-12-01,AI 问答,model_error,35
+2023-12-01,AI 问答,rate_limit,34
+2023-12-01,AI 问答,timeout,63
+2023-12-01,文档总结,model_error,23
+2023-12-01,文档总结,rate_limit,22
+2023-12-01,文档总结,timeout,60
+2024-01-01,AI 写作,model_error,14
+2024-01-01,AI 写作,rate_limit,18
+2024-01-01,AI 写作,timeout,29
+2024-01-01,AI 问答,model_error,24
+2024-01-01,AI 问答,rate_limit,31
+2024-01-01,AI 问答,timeout,74
+2024-01-01,文档总结,model_error,27
+2024-01-01,文档总结,rate_limit,22
+2024-01-01,文档总结,timeout,67
+2024-02-01,AI 写作,model_error,16
+2024-02-01,AI 写作,rate_limit,22
+2024-02-01,AI 写作,timeout,39
+2024-02-01,AI 问答,model_error,26
+2024-02-01,AI 问答,rate_limit,24
+2024-02-01,AI 问答,timeout,83
+2024-02-01,文档总结,model_error,20
+2024-02-01,文档总结,rate_limit,22
+2024-02-01,文档总结,timeout,75
+2024-03-01,AI 写作,model_error,12
+2024-03-01,AI 写作,rate_limit,21
+2024-03-01,AI 写作,timeout,37
+2024-03-01,AI 问答,model_error,39
+2024-03-01,AI 问答,rate_limit,40
+2024-03-01,AI 问答,timeout,80
+2024-03-01,文档总结,model_error,24
+2024-03-01,文档总结,rate_limit,33
+2024-03-01,文档总结,timeout,84
+2024-04-01,AI 写作,model_error,19
+2024-04-01,AI 写作,rate_limit,21
+2024-04-01,AI 写作,timeout,53
+2024-04-01,AI 问答,model_error,27
+2024-04-01,AI 问答,rate_limit,47
+2024-04-01,AI 问答,timeout,106
+2024-04-01,文档总结,model_error,22
+2024-04-01,文档总结,rate_limit,40
+2024-04-01,文档总结,timeout,85
+2024-05-01,AI 写作,model_error,26
+2024-05-01,AI 写作,rate_limit,29
+2024-05-01,AI 写作,timeout,60
+2024-05-01,AI 问答,model_error,49
+2024-05-01,AI 问答,rate_limit,38
+2024-05-01,AI 问答,timeout,111
+2024-05-01,文档总结,model_error,40
+2024-05-01,文档总结,rate_limit,46
+2024-05-01,文档总结,timeout,81
+2024-06-01,AI 写作,model_error,31
+2024-06-01,AI 写作,rate_limit,16
+2024-06-01,AI 写作,timeout,58
+2024-06-01,AI 问答,model_error,87
+2024-06-01,AI 问答,rate_limit,101
+2024-06-01,AI 问答,timeout,239
+2024-06-01,文档总结,model_error,39
+2024-06-01,文档总结,rate_limit,49
+2024-06-01,文档总结,timeout,101
+2024-07-01,AI 写作,model_error,28
+2024-07-01,AI 写作,rate_limit,31
+2024-07-01,AI 写作,timeout,56
+2024-07-01,AI 问答,model_error,40
+2024-07-01,AI 问答,rate_limit,54
+2024-07-01,AI 问答,timeout,121
+2024-07-01,文档总结,model_error,35
+2024-07-01,文档总结,rate_limit,50
+2024-07-01,文档总结,timeout,120
+2024-08-01,AI 写作,model_error,15
+2024-08-01,AI 写作,rate_limit,24
+2024-08-01,AI 写作,timeout,68
+2024-08-01,AI 问答,model_error,41
+2024-08-01,AI 问答,rate_limit,46
+2024-08-01,AI 问答,timeout,117
+2024-08-01,文档总结,model_error,40
+2024-08-01,文档总结,rate_limit,55
+2024-08-01,文档总结,timeout,98
+2024-09-01,AI 写作,model_error,28
+2024-09-01,AI 写作,rate_limit,21
+2024-09-01,AI 写作,timeout,59
+2024-09-01,AI 问答,model_error,46
+2024-09-01,AI 问答,rate_limit,52
+2024-09-01,AI 问答,timeout,108
+2024-09-01,文档总结,model_error,41
+2024-09-01,文档总结,rate_limit,42
+2024-09-01,文档总结,timeout,101
+2024-10-01,AI 写作,model_error,14
+2024-10-01,AI 写作,rate_limit,20
+2024-10-01,AI 写作,timeout,52
+2024-10-01,AI 问答,model_error,51
+2024-10-01,AI 问答,rate_limit,59
+2024-10-01,AI 问答,timeout,114
+2024-10-01,文档总结,model_error,33
+2024-10-01,文档总结,rate_limit,38
+2024-10-01,文档总结,timeout,97
+2024-11-01,AI 写作,model_error,23
+2024-11-01,AI 写作,rate_limit,25
+2024-11-01,AI 写作,timeout,44
+2024-11-01,AI 问答,model_error,34
+2024-11-01,AI 问答,rate_limit,47
+2024-11-01,AI 问答,timeout,109
+2024-11-01,文档总结,model_error,31
+2024-11-01,文档总结,rate_limit,45
+2024-11-01,文档总结,timeout,99
+2024-12-01,AI 写作,model_error,17
+2024-12-01,AI 写作,rate_limit,29
+2024-12-01,AI 写作,timeout,42
+2024-12-01,AI 问答,model_error,40
+2024-12-01,AI 问答,rate_limit,53
+2024-12-01,AI 问答,timeout,106
+2024-12-01,文档总结,model_error,39
+2024-12-01,文档总结,rate_limit,37
+2024-12-01,文档总结,timeout,93

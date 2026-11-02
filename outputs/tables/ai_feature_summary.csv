@@ -1,0 +1,4 @@
+feature_name,requests,accounts,success_rate,avg_latency_ms,p95_latency_ms,avg_input_tokens,avg_output_tokens,estimated_cost_usd_at_assumed_price
+AI 写作,13665,364,0.897036,1833.8,3829,1078.5,657.9,7.6045
+AI 问答,34884,390,0.912682,1260.0,2781,748.1,194.1,7.9779
+文档总结,20854,385,0.879927,2653.1,6240,4539.1,270.2,17.5795

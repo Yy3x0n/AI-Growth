@@ -24,6 +24,9 @@ data/raw/*
 data/processed/*
 !data/processed/.gitkeep
 data/simulated/*
+# A/B 实验明细体积小（约 250KB），且是模块 D 的交付物，允许入库；
+# AI 请求日志（约 6MB）由 scripts/simulate_data.py 用固定种子重建，不入库。
+!data/simulated/ab_test_simulated.csv
 !data/simulated/.gitkeep
 data/chroma/
 

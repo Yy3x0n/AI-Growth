@@ -37,3 +37,7 @@ ipykernel
 
 # ---- 测试 ----
 pytest
+
+# ---- 报告输出 ----
+# DataFrame.to_markdown 依赖 tabulate；缺它会在生成文档时抛 ImportError
+tabulate

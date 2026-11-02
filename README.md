@@ -28,7 +28,7 @@
 | 0 | 环境与项目初始化 | ✅ 完成（自检 27 PASS / 0 WARN / 0 FAIL） |
 | 1 | 数据获取与质量审查 | ✅ 完成（24 项检查，5 个实质问题已定处置） |
 | 2 | 指标分析与用户运营 | ✅ 完成（17 项 SQL/Pandas 对账全一致，16 个单测通过） |
-| 3 | A/B Test 与 AI 使用分析 | 未开始 |
+| 3 | A/B Test 与 AI 使用分析 | ✅ 完成（23 列对账全一致，框架自校验 6 项通过，83 个单测） |
 | 4 | RAG 知识库与检索 | 未开始 |
 | 5 | RAG + 业务数据 + LLM 集成 | 未开始 |
 | 6 | 最终报告与复现验收 | 未开始 |
@@ -37,12 +37,16 @@
 
 | 文档 | 回答什么问题 |
 |---|---|
-| [`00_requirements_and_design.md`](docs/00_requirements_and_design.md) | 设计基线与 12 条勘误 |
+| [`00_requirements_and_design.md`](docs/00_requirements_and_design.md) | 设计基线与 13 条勘误 |
 | [`data_dictionary.md`](docs/data_dictionary.md) | 五个表每个字段是什么 |
 | [`data_quality_report.md`](docs/data_quality_report.md) | 24 项质量检查与 7 条处置决策 |
 | [`data_capability_assessment.md`](docs/data_capability_assessment.md) | **这套数据能做什么、不能做什么** |
 | [`metric_dictionary.md`](docs/metric_dictionary.md) | 每个指标的口径、分母、限制 |
 | [`segmentation_findings.md`](docs/segmentation_findings.md) | 六层分层结果与阈值敏感性 |
+| [`operation_strategy_playbook.md`](docs/operation_strategy_playbook.md) | 三套运营策略与资源分配 |
+| [`data_simulation_method.md`](docs/data_simulation_method.md) | **模拟数据怎么生成、能证明什么、不能证明什么** |
+| [`ai_usage_findings.md`](docs/ai_usage_findings.md) | AI 请求量、错误、延迟、成本与集中度 |
+| [`ab_test_report.md`](docs/ab_test_report.md) | A/B 结论、护栏、检验框架自校验 |
 
 > **阶段 1 的关键结论：** 该数据集的 `signup_date` 与使用时间不连贯——490/500 个账户的首次使用
 > 早于注册日。因此「注册→首次使用」的激活漏斗**不能**用真实数据构造，已改为「以首次使用日为锚」
@@ -123,20 +127,31 @@ cp .env.example .env
 ```bash
 source .venv/bin/activate
 
+# ---- 环境 ----
 python scripts/check_environment.py   # 环境自检，退出码 0 表示无阻塞
 bash scripts/init_database.sh         # 初始化库与用户（幂等）
+
+# ---- 阶段 1：真实数据 ----
 python scripts/download_data.py       # 下载五张原始 CSV（已存在则跳过）
-python scripts/profile_data.py        # 数据画像与质量检查
-python scripts/load_to_mysql.py       # 建表 + 装载（行数校验）
+python scripts/profile_data.py        # 数据画像与 24 项质量检查
+
+# ---- 阶段 2：指标与分层 ----
+python scripts/load_to_mysql.py       # 建表 + 装载（五表行数逐表校验）
 python scripts/run_sql.py sql/02_kpi_analysis.sql   # 建指标视图
 python scripts/run_analysis.py        # 指标计算 + SQL/Pandas 全量对账
 python scripts/run_sql.py sql/03_customer_segments.sql
 python scripts/segment_accounts.py    # 客户分层 + 对账
-pytest -q                             # 单元测试
-python scripts/run_analysis.py        # 指标分析（阶段 2 后可用）
-python scripts/build_knowledge_base.py # 构建向量库（阶段 4 后可用）
-python scripts/ask_ops_assistant.py   # 运营助手（阶段 5 后可用）
-pytest                                # 单元测试
+python scripts/segment_accounts.py --sensitivity    # 阈值敏感性
+
+# ---- 阶段 3：模拟数据、A/B、AI 使用 ----
+python scripts/simulate_data.py --force        # 生成 T2/T3 + 参数恢复自检
+python scripts/load_simulated_to_mysql.py      # 建视图 + 装载（含 P95 抽样核对）
+python scripts/run_ai_analysis.py              # AI 使用分析 + 23 列对账
+python scripts/run_ab_test.py                  # A/B 结论与护栏
+python scripts/validate_ab_harness.py          # 检验框架自校验（Monte Carlo）
+
+# ---- 测试 ----
+pytest -q                             # 83 个单元测试
 ```
 
 ---
