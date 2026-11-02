@@ -1,0 +1,36 @@
+# 依赖清单（阶段 0 只声明，不锁版本）
+# 版本锁定由安装完成后的 `pip freeze > requirements-lock.txt` 生成，
+# 以保证「版本来自本机实测」而不是凭猜测填写。
+#
+# 本项目明确不使用：Streamlit、Power BI、Docker、FastAPI、LangChain、LlamaIndex、Ragas。
+# torch 不在此处声明，按 PyTorch 官方 macOS 指引单独安装，避免 CPU/MPS 轮子混乱。
+
+# ---- 数据处理 ----
+pandas
+numpy
+scipy
+statsmodels
+scikit-learn
+
+# ---- 可视化 ----
+matplotlib
+
+# ---- 数据库 ----
+sqlalchemy
+pymysql
+
+# ---- 配置与网络 ----
+python-dotenv
+requests
+openai
+
+# ---- RAG ----
+chromadb
+sentence-transformers
+
+# ---- Notebook ----
+jupyter
+ipykernel
+
+# ---- 测试 ----
+pytest

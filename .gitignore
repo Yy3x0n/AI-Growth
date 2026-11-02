@@ -1,0 +1,47 @@
+# ---------------- 环境与密钥（绝不入库） ----------------
+.venv/
+.env
+.env.*
+!.env.example
+
+# ---------------- Python ----------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+build/
+dist/
+
+# ---------------- macOS ----------------
+.DS_Store
+._*
+
+# ---------------- 数据层：许可未明示，一律不进库 ----------------
+# 原始数据通过 scripts/download_data.py 重建，来源与校验和记录在 docs/data_manifest.md
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/simulated/*
+!data/simulated/.gitkeep
+data/chroma/
+
+# ---------------- 产物层：只放行小体积聚合结果 ----------------
+outputs/*
+!outputs/tables
+!outputs/reports
+!outputs/simulated
+!outputs/rag_eval_results.csv
+outputs/tables/*
+!outputs/tables/*.csv
+!outputs/tables/.gitkeep
+outputs/reports/*
+!outputs/reports/*.md
+outputs/simulated/*
+!outputs/simulated/*.csv
+
+# ---------------- 其他 ----------------
+*.log
+.cache/
+.DS_Store?
